@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+# gtheme — Ghostty theme switcher
+# https://github.com/UnionPAC/gtheme
+
+set -euo pipefail
+
+THEMES_DIR="${GTHEME_DIR:-$HOME/.config/ghostty/themes}"
+ACTIVE="$THEMES_DIR/active.conf"
+GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
+REGISTRY_BASE="https://raw.githubusercontent.com/UnionPAC/gtheme/main/registry"
+
+# ── helpers ──────────────────────────────────────────────────────────────────
+
+get_font() {
+  grep -m1 '^font-family' "$1" 2>/dev/null | sed 's/font-family *= *//'
+}
+
+brew_cask_name() {
+  case "$1" in
+    "JetBrainsMono Nerd Font")  echo "font-jetbrains-mono-nerd-font" ;;
+    "CaskaydiaCove Nerd Font")  echo "font-caskaydia-cove-nerd-font" ;;
+    "FiraCode Nerd Font")       echo "font-fira-code-nerd-font" ;;
+    "Hack Nerd Font")           echo "font-hack-nerd-font" ;;
+    *)                          echo "" ;;
+  esac
+}
+
+active_name() {
+  if [[ -L "$ACTIVE" ]]; then
+    basename "$(readlink "$ACTIVE")" .conf
+  fi
+}
+
+require_cmd() {
+  command -v "$1" &>/dev/null || { echo "Error: '$1' is required but not installed."; exit 1; }
+}
+
+# ── commands ─────────────────────────────────────────────────────────────────
+
+cmd_list() {
+  echo "Installed themes:"
+  echo ""
+  local all_casks=()
+  for f in "$THEMES_DIR"/*.conf; do
+    name="$(basename "$f" .conf)"
+    [[ "$name" == "active" ]] && continue
+    font="$(get_font "$f")"
+    cask="$(brew_cask_name "$font")"
+    if [[ "$(active_name)" == "$name" ]]; then
+      echo "  * $name  (active)"
+    else
+      echo "    $name"
+    fi
+    echo "      font: $font"
+    [[ -n "$cask" ]] && echo "      install: brew install --cask $cask"
+    [[ -n "$cask" ]] && all_casks+=("$cask")
+    echo ""
+  done
+  if [[ ${#all_casks[@]} -gt 0 ]]; then
+    echo "  Install all fonts:"
+    echo "  brew install --cask ${all_casks[*]}"
+  fi
+}
+
+cmd_switch() {
+  local name="$1"
+  local target="$THEMES_DIR/$name.conf"
+
+  if [[ ! -f "$target" ]]; then
+    echo "Error: theme '$name' not found locally."
+    echo "Try: gtheme search $name"
+    exit 1
+  fi
+
+  ln -sf "$target" "$ACTIVE"
+
+  local font cask
+  font="$(get_font "$target")"
+  cask="$(brew_cask_name "$font")"
+
+  echo "Switched to: $name"
+  echo "Font:        $font"
+  [[ -n "$cask" ]] && echo "Install font: brew install --cask $cask"
+  echo "Reload Ghostty: cmd + shift + ,"
+}
+
+cmd_search() {
+  require_cmd curl
+  local query="${1:-}"
+  echo "Fetching registry..."
+  local index
+  index="$(curl -fsSL "$REGISTRY_BASE/index.json")"
+
+  if [[ -z "$query" ]]; then
+    echo "$index" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//'
+  else
+    echo "$index" | grep -i "$query" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//' || echo "No themes found matching '$query'."
+  fi
+}
+
+cmd_add() {
+  require_cmd curl
+  local name="$1"
+  local target="$THEMES_DIR/$name.conf"
+
+  if [[ -f "$target" ]]; then
+    echo "Theme '$name' is already installed."
+    exit 0
+  fi
+
+  echo "Fetching '$name' from registry..."
+  local url="$REGISTRY_BASE/themes/$name.conf"
+
+  if ! curl -fsSL "$url" -o "$target" 2>/dev/null; then
+    rm -f "$target"
+    echo "Error: theme '$name' not found in registry."
+    echo "Browse themes: https://github.com/UnionPAC/gtheme/tree/main/registry/themes"
+    exit 1
+  fi
+
+  local font cask
+  font="$(get_font "$target")"
+  cask="$(brew_cask_name "$font")"
+
+  echo "Installed: $name"
+  echo "Font:      $font"
+  [[ -n "$cask" ]] && echo "Install font: brew install --cask $cask"
+  echo "Activate with: gtheme $name"
+}
+
+cmd_remove() {
+  local name="$1"
+  local target="$THEMES_DIR/$name.conf"
+
+  if [[ ! -f "$target" ]]; then
+    echo "Theme '$name' is not installed."
+    exit 1
+  fi
+
+  if [[ "$(active_name)" == "$name" ]]; then
+    echo "Error: '$name' is currently active. Switch to another theme first."
+    exit 1
+  fi
+
+  rm "$target"
+  echo "Removed: $name"
+}
+
+cmd_submit() {
+  echo "To submit a theme to the gtheme registry:"
+  echo ""
+  echo "  1. Fork https://github.com/UnionPAC/gtheme"
+  echo "  2. Add your theme file to registry/themes/<your-theme-name>.conf"
+  echo "  3. Add an entry to registry/index.json"
+  echo "  4. Open a pull request — that's it!"
+  echo ""
+  echo "Theme file format: any valid Ghostty config."
+  echo "Registry index format:"
+  echo '  { "name": "my-theme", "author": "you", "description": "...", "font": "Font Name" }'
+}
+
+cmd_help() {
+  cat <<EOF
+gtheme — Ghostty theme switcher
+
+Usage:
+  gtheme list                  List installed themes
+  gtheme <name>                Switch to a theme
+  gtheme search [query]        Search the community registry
+  gtheme add <name>            Install a theme from the registry
+  gtheme remove <name>         Remove an installed theme
+  gtheme submit                How to share your theme
+  gtheme help                  Show this help
+
+Reload Ghostty after switching: cmd + shift + ,
+Browse themes: https://github.com/UnionPAC/gtheme
+EOF
+}
+
+# ── router ───────────────────────────────────────────────────────────────────
+
+case "${1:-}" in
+  list)              cmd_list ;;
+  search)            cmd_search "${2:-}" ;;
+  add)               [[ -z "${2:-}" ]] && { echo "Usage: gtheme add <name>"; exit 1; }; cmd_add "$2" ;;
+  remove|rm)         [[ -z "${2:-}" ]] && { echo "Usage: gtheme remove <name>"; exit 1; }; cmd_remove "$2" ;;
+  submit)            cmd_submit ;;
+  help|--help|-h)    cmd_help ;;
+  "")                cmd_help ;;
+  *)                 cmd_switch "$1" ;;
+esac

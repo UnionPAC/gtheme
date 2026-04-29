@@ -1,0 +1,30 @@
+[
+  {
+    "name": "synthwave-noir",
+    "author": "UnionPAC",
+    "description": "Neon lights and deep city nights. Hot pink, violet, and electric cyan on near-black.",
+    "font": "JetBrainsMono Nerd Font",
+    "tags": ["dark", "neon", "synthwave", "purple"]
+  },
+  {
+    "name": "ocean-depths",
+    "author": "UnionPAC",
+    "description": "Bioluminescent abyss. Deep teals, seafoam, and coral on deep navy.",
+    "font": "CaskaydiaCove Nerd Font",
+    "tags": ["dark", "blue", "teal", "calm"]
+  },
+  {
+    "name": "ember-ash",
+    "author": "UnionPAC",
+    "description": "Forge heat and smoldering coal. Amber, ember red, and gold on dark charcoal.",
+    "font": "FiraCode Nerd Font",
+    "tags": ["dark", "warm", "orange", "fire"]
+  },
+  {
+    "name": "forest-dark",
+    "author": "UnionPAC",
+    "description": "Old growth canopy, moss and rain. Neon lime, forest green, and earth tones on near-black.",
+    "font": "Hack Nerd Font",
+    "tags": ["dark", "green", "nature", "minimal"]
+  }
+]
