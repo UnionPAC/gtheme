@@ -114,7 +114,7 @@ cmd_add() {
   if ! curl -fsSL "$url" -o "$target" 2>/dev/null; then
     rm -f "$target"
     echo "Error: theme '$name' not found in registry."
-    echo "Browse themes: https://github.com/UnionPAC/gtheme/tree/main/registry/themes"
+    echo "Browse community themes: https://unionpac.github.io/gtheme"
     exit 1
   fi
 
@@ -176,7 +176,7 @@ Usage:
   gtheme help                  Show this help
 
 Reload Ghostty after switching: cmd + shift + ,
-Browse themes: https://github.com/UnionPAC/gtheme
+Browse community themes: https://unionpac.github.io/gtheme
 EOF
 }
 
