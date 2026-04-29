@@ -147,16 +147,19 @@ cmd_remove() {
 }
 
 cmd_submit() {
-  echo "To submit a theme to the gtheme registry:"
+  local url="https://github.com/UnionPAC/gtheme/issues/new?template=submit-theme.yml"
+  echo "Opening theme submission form in your browser..."
   echo ""
-  echo "  1. Fork https://github.com/UnionPAC/gtheme"
-  echo "  2. Add your theme file to registry/themes/<your-theme-name>.conf"
-  echo "  3. Add an entry to registry/index.json"
-  echo "  4. Open a pull request — that's it!"
+  echo "Fill out the form and we'll add your theme to the registry."
+  echo "URL: $url"
   echo ""
-  echo "Theme file format: any valid Ghostty config."
-  echo "Registry index format:"
-  echo '  { "name": "my-theme", "author": "you", "description": "...", "font": "Font Name" }'
+  if command -v open &>/dev/null; then
+    open "$url"
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "$url"
+  else
+    echo "Open the URL above in your browser to submit."
+  fi
 }
 
 cmd_help() {

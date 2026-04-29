@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gtheme — Ghostty Theme Marketplace</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d14;
+      --surface: #13131f;
+      --surface2: #1a1a2e;
+      --border: #ffffff12;
+      --text: #e0e0f0;
+      --text-muted: #7070a0;
+      --accent: #7b6fff;
+      --accent-glow: #7b6fff33;
+      --radius: 12px;
+      --font-mono: "SF Mono", "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #a78bff, #60cfff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+
+    .install-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #a0a0c8;
+    }
+
+    .install-banner span { color: #60cfff; user-select: all; }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      transition: color 0.15s, background 0.15s;
+    }
+    .copy-btn:hover { color: var(--text); background: var(--surface2); }
+    .copy-btn.copied { color: #00e5a0; }
+
+    .header-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      border: none;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── controls ── */
+    .controls {
+      max-width: 1100px;
+      margin: 32px auto 0;
+      padding: 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-wrap {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    input[type="search"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 10px 14px 10px 38px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="search"]:focus { border-color: var(--accent); }
+    input[type="search"]::placeholder { color: var(--text-muted); }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-filter {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      transition: all 0.15s;
+    }
+    .tag-filter:hover { border-color: var(--accent); color: var(--text); }
+    .tag-filter.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent); }
+
+    /* ── count ── */
+    .count {
+      max-width: 1100px;
+      margin: 16px auto 0;
+      padding: 0 24px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── grid ── */
+    .grid {
+      max-width: 1100px;
+      margin: 16px auto 64px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: #ffffff28; transform: translateY(-3px); }
+
+    .swatch-bar {
+      display: flex;
+      height: 56px;
+    }
+    .swatch-bar div { flex: 1; }
+
+    .card-body {
+      padding: 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+
+    .card-name {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-author {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: #a0a0c0;
+      flex: 1;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .font-badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 2px 7px;
+    }
+
+    .tag {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 2px 8px;
+    }
+
+    .card-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .add-cmd {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #60cfff;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── empty ── */
+    .empty {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 64px 24px;
+      color: var(--text-muted);
+    }
+    .empty strong { display: block; font-size: 1.1rem; color: var(--text); margin-bottom: 8px; }
+
+    /* ── footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .logo { font-size: 1.8rem; }
+      .install-banner { font-size: 0.72rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">gtheme</div>
+  <p class="tagline">A community theme library for <a href="https://ghostty.org" style="color:inherit;text-decoration:none;border-bottom:1px solid #ffffff30">Ghostty</a></p>
+
+  <div class="install-banner">
+    $&nbsp;<span id="install-cmd">curl -fsSL https://raw.githubusercontent.com/UnionPAC/gtheme/main/install.sh | bash</span>
+    <button class="copy-btn" onclick="copyInstall(this)" title="Copy install command">copy</button>
+  </div>
+
+  <div class="header-actions">
+    <a class="btn btn-primary" href="https://github.com/UnionPAC/gtheme/issues/new?template=submit-theme.yml" target="_blank">
+      + Submit your theme
+    </a>
+    <a class="btn btn-ghost" href="https://github.com/UnionPAC/gtheme" target="_blank">
+      GitHub
+    </a>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+      <path d="M10 6.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Zm-.889 3.318a4.5 4.5 0 1 1 .707-.707l2.786 2.785a.5.5 0 0 1-.708.708L9.11 9.818Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"/>
+    </svg>
+    <input type="search" id="search" placeholder="Search themes…" oninput="render()" />
+  </div>
+  <div class="tags-row" id="tags-row"></div>
+</div>
+
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+
+<footer>
+  <p>
+    Built by <a href="https://github.com/UnionPAC" target="_blank">@UnionPAC</a> &nbsp;·&nbsp;
+    <a href="https://github.com/UnionPAC/gtheme" target="_blank">View on GitHub</a> &nbsp;·&nbsp;
+    <a href="https://github.com/UnionPAC/gtheme/issues/new?template=submit-theme.yml" target="_blank">Submit a theme</a>
+  </p>
+</footer>
+
+<script>
+  const INDEX_URL = 'https://raw.githubusercontent.com/UnionPAC/gtheme/main/registry/index.json';
+  let themes = [];
+  let activeTag = null;
+
+  async function load() {
+    try {
+      const res = await fetch(INDEX_URL);
+      themes = await res.json();
+      buildTagFilters();
+      render();
+    } catch (e) {
+      document.getElementById('grid').innerHTML =
+        '<div class="empty"><strong>Failed to load themes</strong>Check your connection and try again.</div>';
+    }
+  }
+
+  function buildTagFilters() {
+    const all = [...new Set(themes.flatMap(t => t.tags))].sort();
+    const row = document.getElementById('tags-row');
+    row.innerHTML = all.map(tag =>
+      `<button class="tag-filter" onclick="toggleTag('${tag}', this)">${tag}</button>`
+    ).join('');
+  }
+
+  function toggleTag(tag, el) {
+    if (activeTag === tag) {
+      activeTag = null;
+      el.classList.remove('active');
+    } else {
+      document.querySelectorAll('.tag-filter').forEach(b => b.classList.remove('active'));
+      activeTag = tag;
+      el.classList.add('active');
+    }
+    render();
+  }
+
+  function render() {
+    const q = document.getElementById('search').value.toLowerCase().trim();
+    const filtered = themes.filter(t => {
+      const matchesQuery = !q ||
+        t.name.includes(q) ||
+        t.description.toLowerCase().includes(q) ||
+        t.tags.some(tag => tag.includes(q)) ||
+        t.author.toLowerCase().includes(q);
+      const matchesTag = !activeTag || t.tags.includes(activeTag);
+      return matchesQuery && matchesTag;
+    });
+
+    document.getElementById('count').textContent =
+      `${filtered.length} theme${filtered.length !== 1 ? 's' : ''}`;
+
+    const grid = document.getElementById('grid');
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="empty"><strong>No themes found</strong>Try a different search or tag.</div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(t => {
+      const swatches = [t.colors.background, ...t.colors.accent]
+        .map(c => `<div style="background:${c}"></div>`).join('');
+      const tags = t.tags.map(tag =>
+        `<span class="tag">${tag}</span>`
+      ).join('');
+
+      return `
+        <div class="card">
+          <div class="swatch-bar">${swatches}</div>
+          <div class="card-body">
+            <div class="card-header">
+              <span class="card-name">${t.name}</span>
+              <span class="card-author">@${t.author}</span>
+            </div>
+            <p class="card-desc">${t.description}</p>
+            <div class="card-meta">
+              <span class="font-badge">${t.font}</span>
+              ${tags}
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="add-cmd">gtheme add ${t.name}</span>
+            <button class="copy-btn" onclick="copyAdd('${t.name}', this)" title="Copy command">copy</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function copyInstall(btn) {
+    const cmd = document.getElementById('install-cmd').textContent;
+    navigator.clipboard.writeText(cmd).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function copyAdd(name, btn) {
+    navigator.clipboard.writeText(`gtheme add ${name}`).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  load();
+</script>
+</body>
+</html>

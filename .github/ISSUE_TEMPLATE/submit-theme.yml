@@ -1,0 +1,94 @@
+name: Submit a Theme
+description: Share your Ghostty theme with the gtheme community
+title: "[Theme] "
+labels: ["theme-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing a theme! Fill out the form below and we'll add it to the registry.
+        Your `.conf` file should contain valid [Ghostty config options](https://ghostty.org/docs/config/reference).
+
+  - type: input
+    id: name
+    attributes:
+      label: Theme name
+      description: Lowercase, hyphens only (e.g. my-cool-theme)
+      placeholder: my-cool-theme
+    validations:
+      required: true
+
+  - type: input
+    id: description
+    attributes:
+      label: Description
+      description: One sentence — describe the vibe
+      placeholder: Deep blues and electric cyan on near-black.
+    validations:
+      required: true
+
+  - type: input
+    id: font
+    attributes:
+      label: Font family
+      description: The font-family value used in your theme (Nerd Font recommended)
+      placeholder: JetBrainsMono Nerd Font
+    validations:
+      required: true
+
+  - type: input
+    id: colors
+    attributes:
+      label: Accent colors (hex)
+      description: 4–6 key colors from your palette, comma-separated — used for the preview swatches on the website
+      placeholder: "#ff4b82, #00d4ff, #c77dff, #00e5a0, #ffcc00"
+    validations:
+      required: true
+
+  - type: input
+    id: background
+    attributes:
+      label: Background color (hex)
+      placeholder: "#0b0d1a"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tags
+    attributes:
+      label: Tags
+      multiple: true
+      options:
+        - dark
+        - light
+        - neon
+        - minimal
+        - warm
+        - cool
+        - nature
+        - retro
+        - monochrome
+        - pastel
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Theme config (.conf)
+      description: Paste your full Ghostty config here
+      render: shell
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: My theme name is unique (not already in the registry)
+          required: true
+        - label: I've tested this config in Ghostty
+          required: true
+        - label: I'm okay with this theme being shared publicly under the MIT license
+          required: true
