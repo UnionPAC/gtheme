@@ -2,6 +2,12 @@
 
 A lightweight theme switcher for [Ghostty](https://ghostty.org) with a community theme library.
 
+---
+
+## Installation
+
+Run the following command in your terminal:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/UnionPAC/gtheme/main/install.sh | bash
 ```
@@ -21,8 +27,6 @@ gtheme submit                # share your theme with the community
 gtheme version               # show the current version
 gtheme help                  # show all commands
 ```
-
-gtheme checks for updates automatically once a day in the background — you'll see a one-line notice the next time you run any command after an update lands.
 
 After switching, reload Ghostty with `cmd + shift + ,` — no restart needed.
 
