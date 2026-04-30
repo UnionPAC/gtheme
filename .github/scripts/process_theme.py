@@ -29,6 +29,9 @@ def strip_code_fence(text):
     text = re.sub(r"\n?```$", "", text)
     return text.strip()
 
+def is_hex(value):
+    return bool(re.match(r"^#[0-9a-fA-F]{6}$", value.strip()))
+
 def comment(msg):
     subprocess.run(
         ["gh", "issue", "comment", ISSUE_NUMBER, "--body", msg],
@@ -45,10 +48,16 @@ def fail(msg):
 name        = extract_field(ISSUE_BODY, "Theme name")
 description = extract_field(ISSUE_BODY, "Description")
 font        = extract_field(ISSUE_BODY, "Font family")
-accents_raw = extract_field(ISSUE_BODY, "Accent colors (hex)")
-background  = extract_field(ISSUE_BODY, "Background color (hex)")
 tags_raw    = extract_field(ISSUE_BODY, "Tags")
 config      = strip_code_fence(extract_field(ISSUE_BODY, "Theme config (.conf)"))
+
+# Named preview colors
+color_background = extract_field(ISSUE_BODY, "Background color")
+color_foreground = extract_field(ISSUE_BODY, "Foreground color")
+color_prompt     = extract_field(ISSUE_BODY, "Prompt color")
+color_directory  = extract_field(ISSUE_BODY, "Directory color")
+color_success    = extract_field(ISSUE_BODY, "Success color")
+color_error      = extract_field(ISSUE_BODY, "Error color")
 
 # ── validate ──────────────────────────────────────────────────────────────────
 
@@ -71,18 +80,23 @@ if os.path.exists(f"registry/themes/{name}.conf"):
 if not config:
     fail("Could not read the **Theme config** from the submission form.")
 
-if not background or not re.match(r"^#[0-9a-fA-F]{6}$", background.strip()):
-    fail(f"**Background color** `{background}` doesn't look like a valid hex color (e.g. `#0b0d1a`).")
+color_fields = {
+    "Background color": color_background,
+    "Foreground color": color_foreground,
+    "Prompt color":     color_prompt,
+    "Directory color":  color_directory,
+    "Success color":    color_success,
+    "Error color":      color_error,
+}
 
-# Parse accent colors — comma or newline separated
-accent_colors = [
-    c.strip() for c in re.split(r"[,\n]", accents_raw)
-    if re.match(r"^#[0-9a-fA-F]{6}$", c.strip())
-]
-if not accent_colors:
-    fail("Could not parse any valid **Accent colors**. Use hex format: `#ff4b82, #00d4ff`.")
+for field_name, value in color_fields.items():
+    if not value or not is_hex(value):
+        fail(
+            f"**{field_name}** `{value}` doesn't look like a valid hex color.\n\n"
+            "Use 6-digit hex format, e.g. `#0b0d1a`."
+        )
 
-# Parse tags — dropdown values come comma or newline separated
+# Parse tags
 tags = [t.strip() for t in re.split(r"[,\n]", tags_raw) if t.strip()]
 
 # ── write files ───────────────────────────────────────────────────────────────
@@ -95,14 +109,18 @@ with open("registry/index.json", "r") as f:
     index = json.load(f)
 
 index.append({
-    "name": name,
-    "author": ISSUE_USER,
+    "name":        name,
+    "author":      ISSUE_USER,
     "description": description,
-    "font": font,
-    "tags": tags,
+    "font":        font,
+    "tags":        tags,
     "colors": {
-        "background": background.strip(),
-        "accent": accent_colors,
+        "background": color_background.strip(),
+        "foreground": color_foreground.strip(),
+        "prompt":     color_prompt.strip(),
+        "directory":  color_directory.strip(),
+        "success":    color_success.strip(),
+        "error":      color_error.strip(),
     },
 })
 
@@ -138,8 +156,15 @@ Submitted by @{ISSUE_USER} via issue #{ISSUE_NUMBER}.
 **Description:** {description}
 **Font:** {font}
 **Tags:** {", ".join(tags)}
-**Background:** `{background.strip()}`
-**Accent colors:** {", ".join(f"`{c}`" for c in accent_colors)}
+
+| Color | Hex |
+|-------|-----|
+| Background | `{color_background}` |
+| Foreground | `{color_foreground}` |
+| Prompt | `{color_prompt}` |
+| Directory | `{color_directory}` |
+| Success | `{color_success}` |
+| Error | `{color_error}` |
 
 ---
 

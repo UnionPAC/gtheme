@@ -48,11 +48,7 @@
       background-clip: text;
     }
 
-    .tagline {
-      color: var(--text-muted);
-      margin-top: 8px;
-      font-size: 1rem;
-    }
+    .tagline { color: var(--text-muted); margin-top: 8px; font-size: 1rem; }
 
     .install-banner {
       display: inline-flex;
@@ -67,7 +63,6 @@
       font-size: 0.82rem;
       color: #a0a0c8;
     }
-
     .install-banner span { color: #60cfff; user-select: all; }
 
     .copy-btn {
@@ -118,12 +113,7 @@
       align-items: center;
     }
 
-    .search-wrap {
-      flex: 1;
-      min-width: 200px;
-      position: relative;
-    }
-
+    .search-wrap { flex: 1; min-width: 200px; position: relative; }
     .search-wrap svg {
       position: absolute;
       left: 12px;
@@ -147,11 +137,7 @@
     input[type="search"]:focus { border-color: var(--accent); }
     input[type="search"]::placeholder { color: var(--text-muted); }
 
-    .tags-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+    .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
 
     .tag-filter {
       background: var(--surface);
@@ -187,20 +173,16 @@
 
     /* ── card ── */
     .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       transition: border-color 0.2s, transform 0.2s;
+      border: 1px solid transparent;
     }
-    .card:hover { border-color: #ffffff28; transform: translateY(-3px); }
+    .card:hover { transform: translateY(-3px); }
 
-    .swatch-bar {
-      display: flex;
-      height: 56px;
-    }
+    .swatch-bar { display: flex; height: 48px; }
     .swatch-bar div { flex: 1; }
 
     .card-body {
@@ -217,66 +199,124 @@
       font-family: var(--font-mono);
       font-size: 1rem;
       font-weight: 600;
-      color: var(--text);
     }
 
-    .card-author {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
+    .card-author { font-size: 0.78rem; white-space: nowrap; }
+    .card-desc { font-size: 0.85rem; flex: 1; }
 
-    .card-desc {
-      font-size: 0.85rem;
-      color: #a0a0c0;
-      flex: 1;
-    }
-
-    .card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 
     .font-badge {
-      background: var(--surface2);
-      border: 1px solid var(--border);
       border-radius: 4px;
       font-family: var(--font-mono);
       font-size: 0.7rem;
-      color: var(--text-muted);
       padding: 2px 7px;
+      border: 1px solid transparent;
     }
 
     .tag {
       background: transparent;
-      border: 1px solid var(--border);
       border-radius: 20px;
       font-size: 0.7rem;
-      color: var(--text-muted);
       padding: 2px 8px;
+      border: 1px solid transparent;
     }
 
     .card-footer {
-      padding: 12px 18px;
-      border-top: 1px solid var(--border);
+      padding: 10px 18px;
       display: flex;
       align-items: center;
       gap: 8px;
+      border-top: 1px solid transparent;
     }
 
     .add-cmd {
       font-family: var(--font-mono);
       font-size: 0.78rem;
-      color: #60cfff;
       flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    /* ── loading ── */
+    .preview-btn {
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .preview-btn:hover { opacity: 0.75; }
+
+    /* ── modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .terminal-window {
+      width: 100%;
+      max-width: 680px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .terminal-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+
+    .traffic-lights { display: flex; gap: 6px; }
+    .tl {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .tl-red    { background: #ff5f57; }
+    .tl-yellow { background: #febc2e; }
+    .tl-green  { background: #28c840; }
+
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.5;
+    }
+
+    .terminal-body {
+      padding: 20px 24px 28px;
+      min-height: 320px;
+    }
+
+    .t-line { display: block; white-space: pre; }
+    .t-dim   { opacity: 0.45; }
+    .t-blank { display: block; height: 0.85em; }
+
+    .modal-close-hint {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── loading / empty ── */
     .loading {
       grid-column: 1/-1;
       text-align: center;
@@ -294,7 +334,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── empty ── */
     .empty {
       grid-column: 1/-1;
       text-align: center;
@@ -317,6 +356,7 @@
     @media (max-width: 600px) {
       .logo { font-size: 1.8rem; }
       .install-banner { font-size: 0.72rem; }
+      .terminal-window { font-size: 0.78rem; }
     }
   </style>
 </head>
@@ -356,6 +396,14 @@
   <div class="loading">
     <div class="spinner"></div>
     Loading themes…
+  </div>
+</div>
+
+<!-- Preview modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div>
+    <div class="terminal-window" id="modal-terminal"></div>
+    <p class="modal-close-hint">click anywhere to close</p>
   </div>
 </div>
 
@@ -426,33 +474,88 @@
     }
 
     grid.innerHTML = filtered.map(t => {
-      const swatches = [t.colors.background, ...t.colors.accent]
-        .map(c => `<div style="background:${c}"></div>`).join('');
+      const c = t.colors;
+      const swatches = [c.prompt, c.directory, c.success, c.error, c.foreground]
+        .map(col => `<div style="background:${col}"></div>`).join('');
       const tags = t.tags.map(tag =>
-        `<span class="tag">${tag}</span>`
+        `<span class="tag" style="border-color:${c.prompt}44;color:${c.prompt}cc">${tag}</span>`
       ).join('');
 
       return `
-        <div class="card">
+        <div class="card" style="background:${c.background};border-color:${c.prompt}33">
           <div class="swatch-bar">${swatches}</div>
           <div class="card-body">
             <div class="card-header">
-              <span class="card-name">${t.name}</span>
-              <span class="card-author">@${t.author}</span>
+              <span class="card-name" style="color:${c.prompt}">${t.name}</span>
+              <span class="card-author" style="color:${c.foreground}66">@${t.author}</span>
             </div>
-            <p class="card-desc">${t.description}</p>
+            <p class="card-desc" style="color:${c.foreground}cc">${t.description}</p>
             <div class="card-meta">
-              <span class="font-badge">${t.font}</span>
+              <span class="font-badge" style="background:${c.prompt}18;border-color:${c.prompt}44;color:${c.foreground}99">${t.font}</span>
               ${tags}
             </div>
           </div>
-          <div class="card-footer">
-            <span class="add-cmd">gtheme add ${t.name}</span>
-            <button class="copy-btn" onclick="copyAdd('${t.name}', this)" title="Copy command">copy</button>
+          <div class="card-footer" style="border-color:${c.prompt}22">
+            <button class="preview-btn" style="border-color:${c.prompt}55;color:${c.prompt}" onclick="openPreview('${t.name}')">Preview</button>
+            <span class="add-cmd" style="color:${c.foreground}99">gtheme add ${t.name}</span>
+            <button class="copy-btn" style="color:${c.foreground}77" onclick="copyAdd('${t.name}', this)">copy</button>
           </div>
         </div>`;
     }).join('');
   }
+
+  function openPreview(name) {
+    const t = themes.find(t => t.name === name);
+    if (!t) return;
+    const c = t.colors;
+
+    const dim    = c.foreground + '55';
+    const muted  = c.foreground + '88';
+    const normal = c.foreground;
+
+    document.getElementById('modal-terminal').innerHTML = `
+      <div class="terminal-titlebar" style="background:${c.background}ee;border-bottom:1px solid ${c.prompt}22">
+        <div class="traffic-lights">
+          <div class="tl tl-red"></div>
+          <div class="tl tl-yellow"></div>
+          <div class="tl tl-green"></div>
+        </div>
+        <span class="terminal-title" style="color:${normal}">${t.name}</span>
+      </div>
+      <div class="terminal-body" style="background:${c.background}">
+        <span class="t-line" style="color:${c.prompt}">❯ ls ~/projects</span>
+        <span class="t-line"><span style="color:${dim}">drwxr-xr-x</span>  <span style="color:${c.directory}">gtheme</span></span>
+        <span class="t-line"><span style="color:${dim}">drwxr-xr-x</span>  <span style="color:${c.directory}">portfolio</span></span>
+        <span class="t-line"><span style="color:${dim}">drwxr-xr-x</span>  <span style="color:${c.directory}">dotfiles</span></span>
+        <span class="t-line"><span style="color:${dim}">-rw-r--r--</span>  <span style="color:${normal}">README.md</span></span>
+        <span class="t-line"><span style="color:${dim}">-rw-r--r--</span>  <span style="color:${muted}">.gitignore</span></span>
+        <span class="t-blank"></span>
+        <span class="t-line" style="color:${c.prompt}">❯ git log --oneline -3</span>
+        <span class="t-line"><span style="color:${c.prompt}">a1b2c3d</span>  <span style="color:${normal}">redesign themes for stronger vibes</span></span>
+        <span class="t-line"><span style="color:${c.prompt}">f4e5d6c</span>  <span style="color:${normal}">fix font detection on linux</span></span>
+        <span class="t-line"><span style="color:${c.prompt}">9g8h7i6</span>  <span style="color:${normal}">initial commit</span></span>
+        <span class="t-blank"></span>
+        <span class="t-line" style="color:${c.prompt}">❯ npm run build</span>
+        <span class="t-line" style="color:${c.success}">✓ build complete in 1.2s</span>
+        <span class="t-blank"></span>
+        <span class="t-line" style="color:${c.prompt}">❯ cat missing.txt</span>
+        <span class="t-line" style="color:${c.error}">error: no such file or directory: missing.txt</span>
+        <span class="t-blank"></span>
+        <span class="t-line"><span style="color:${c.prompt}">❯ </span><span style="background:${c.prompt};color:${c.background}">&nbsp;</span></span>
+      </div>`;
+
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal') || e.target.closest('.modal-close-hint')) {
+      document.getElementById('modal').classList.remove('open');
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('modal').classList.remove('open');
+  });
 
   function copyInstall(btn) {
     const cmd = document.getElementById('install-cmd').textContent;

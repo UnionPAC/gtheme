@@ -109,7 +109,15 @@ If you want to share your theme with the community so others can install it with
 gtheme submit
 ```
 
-This opens a short form in your browser. Fill in your theme name, description, font, a few accent colors (for the preview swatches on the site), and paste your `.conf`. We'll review it and add it to the registry.
+This opens a submission form in your browser. The form has two distinct parts:
+
+**Part 1 — Your theme config**
+Paste your full `.conf` file. This is what gets added to the registry and loaded into Ghostty when someone installs your theme.
+
+**Part 2 — Preview colors**
+A small set of named colors picked from your `.conf` — background, foreground, prompt, directory, success, and error. These are used purely to render the live terminal preview and color swatches on the marketplace. They aren't pulled automatically from your config, so you'll fill them in manually. Each field explains which palette slot to look at.
+
+Once submitted, the form auto-generates a PR. After it's reviewed and merged, your theme appears on the marketplace and is installable with `gtheme add <your-theme-name>`.
 
 Browse community themes → **[unionpac.github.io/gtheme](https://unionpac.github.io/gtheme)**
 

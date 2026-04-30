@@ -7,6 +7,7 @@ body:
     attributes:
       value: |
         Thanks for sharing a theme! Fill out the form below and we'll add it to the registry.
+
         Your `.conf` file should contain valid [Ghostty config options](https://ghostty.org/docs/config/reference).
 
   - type: input
@@ -36,20 +37,67 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: colors
+  - type: markdown
     attributes:
-      label: Accent colors (hex)
-      description: 4–6 key colors from your palette, comma-separated — used for the preview swatches on the website
-      placeholder: "#ff4b82, #00d4ff, #c77dff, #00e5a0, #ffcc00"
+      value: |
+        ---
+        ### Preview colors
+
+        The next fields are **separate from your `.conf` file** — they're used purely to power the live terminal preview and color swatches on the marketplace website. They won't affect how your theme works in Ghostty.
+
+        Pick the hex colors from your `.conf` that best represent each role. For example, your `cursor-color` is a good prompt color, your `palette = 4` (blue) is usually a good directory color, etc.
+
+  - type: input
+    id: color_background
+    attributes:
+      label: Background color
+      description: Your theme's `background` value
+      placeholder: "#0b0d1a"
     validations:
       required: true
 
   - type: input
-    id: background
+    id: color_foreground
     attributes:
-      label: Background color (hex)
-      placeholder: "#0b0d1a"
+      label: Foreground color
+      description: Your theme's `foreground` value — the main text color
+      placeholder: "#e0e0f0"
+    validations:
+      required: true
+
+  - type: input
+    id: color_prompt
+    attributes:
+      label: Prompt color
+      description: Color of the shell prompt — usually your `cursor-color` or a bright accent
+      placeholder: "#00d4ff"
+    validations:
+      required: true
+
+  - type: input
+    id: color_directory
+    attributes:
+      label: Directory color
+      description: Color used for directories — usually `palette = 4` (blue) or similar
+      placeholder: "#5b8fff"
+    validations:
+      required: true
+
+  - type: input
+    id: color_success
+    attributes:
+      label: Success color
+      description: Color for success or positive output — usually `palette = 2` (green)
+      placeholder: "#00e5a0"
+    validations:
+      required: true
+
+  - type: input
+    id: color_error
+    attributes:
+      label: Error color
+      description: Color for errors — usually `palette = 1` (red)
+      placeholder: "#ff4b82"
     validations:
       required: true
 
