@@ -31,6 +31,14 @@ active_name() {
   fi
 }
 
+font_installed() {
+  local name="$1"
+  local stem="${name%% Nerd*}"
+  local pattern="${stem// /}"
+  find "$HOME/Library/Fonts" "/Library/Fonts" -maxdepth 2 \
+    -iname "*${pattern}*" 2>/dev/null | grep -q .
+}
+
 require_cmd() {
   command -v "$1" &>/dev/null || { echo "Error: '$1' is required but not installed."; exit 1; }
 }
@@ -40,26 +48,15 @@ require_cmd() {
 cmd_list() {
   echo "Installed themes:"
   echo ""
-  local all_casks=()
   for f in "$THEMES_DIR"/*.conf; do
     name="$(basename "$f" .conf)"
     [[ "$name" == "active" ]] && continue
-    font="$(get_font "$f")"
-    cask="$(brew_cask_name "$font")"
     if [[ "$(active_name)" == "$name" ]]; then
       echo "  * $name  (active)"
     else
       echo "    $name"
     fi
-    echo "      font: $font"
-    [[ -n "$cask" ]] && echo "      install: brew install --cask $cask"
-    [[ -n "$cask" ]] && all_casks+=("$cask")
-    echo ""
   done
-  if [[ ${#all_casks[@]} -gt 0 ]]; then
-    echo "  Install all fonts:"
-    echo "  brew install --cask ${all_casks[*]}"
-  fi
 }
 
 cmd_switch() {
@@ -79,8 +76,9 @@ cmd_switch() {
   cask="$(brew_cask_name "$font")"
 
   echo "Switched to: $name"
-  echo "Font:        $font"
-  [[ -n "$cask" ]] && echo "Install font: brew install --cask $cask"
+  if [[ -n "$font" ]] && ! font_installed "$font"; then
+    [[ -n "$cask" ]] && echo "⚠  Font not installed: brew install --cask $cask"
+  fi
   echo "Reload Ghostty: cmd + shift + ,"
 }
 
@@ -123,8 +121,9 @@ cmd_add() {
   cask="$(brew_cask_name "$font")"
 
   echo "Installed: $name"
-  echo "Font:      $font"
-  [[ -n "$cask" ]] && echo "Install font: brew install --cask $cask"
+  if [[ -n "$font" ]] && ! font_installed "$font"; then
+    [[ -n "$cask" ]] && echo "⚠  Font not installed: brew install --cask $cask"
+  fi
   echo "Activate with: gtheme $name"
 }
 

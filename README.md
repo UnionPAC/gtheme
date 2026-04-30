@@ -118,12 +118,6 @@ gtheme ships with four themes to get you started:
 | `ember-ash` | forge heat, smoldering coal | FiraCode Nerd Font |
 | `forest-dark` | old growth canopy, moss & rain | Hack Nerd Font |
 
-Install all fonts:
-
-```bash
-brew install --cask font-jetbrains-mono-nerd-font font-caskaydia-cove-nerd-font font-fira-code-nerd-font font-hack-nerd-font
-```
-
 ---
 
 ## How it works
