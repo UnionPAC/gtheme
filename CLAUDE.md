@@ -32,4 +32,4 @@ When someone submits a theme via the GitHub issue form:
 
 ## Developer mode
 
-`~/.local/bin/gtheme` on Geoff's machine is a symlink to `bin/gtheme` in this repo. Auto-update skips symlinks, so edits in the repo take effect immediately without any overwrite risk.
+If `~/.local/bin/gtheme` is a symlink to `bin/gtheme` in this repo, auto-update skips it — edits take effect immediately without any overwrite risk.
