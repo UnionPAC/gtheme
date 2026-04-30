@@ -1,47 +1,44 @@
 # gtheme — Claude Notes
 
-## Shipping a new version
+gtheme is a lightweight Ghostty theme switcher with a community marketplace. Pure bash CLI, GitHub Pages web app, GitHub Actions submission pipeline. No server, no package manager.
 
-To push an update to all installed users, bump the version in `VERSION` and `bin/gtheme` (the `VERSION=` line near the top), then commit and push. Users on the auto-update path will silently receive the new binary within 24 hours.
+## Sub-file index
 
+Detailed notes are split by area — load these when working in the relevant directory:
+
+- `bin/CLAUDE.md` — CLI architecture, auto-update, key decisions
+- `themes/CLAUDE.md` — bundled themes, vibes, sync process
+- `docs/CLAUDE.md` — marketplace site, color schema, preview modal
+- `registry/CLAUDE.md` — index.json schema, community submission
+- `.github/CLAUDE.md` — GitHub Action, issue template, PR flow
+
+## Critical developer workflows
+
+**Releasing a new version** — bump both files, then push:
 ```bash
-# Example: releasing v0.2.0
 echo "0.2.0" > VERSION
-# Update VERSION="0.1.0" → VERSION="0.2.0" in bin/gtheme
-git add VERSION bin/gtheme
-git commit -m "Release v0.2.0"
-git push
+# also update VERSION="0.1.0" → VERSION="0.2.0" inside bin/gtheme
+git add VERSION bin/gtheme && git commit -m "Release v0.2.0" && git push
 ```
+
+**After editing a bundled theme** — repo and local Ghostty themes are separate files, must sync manually:
+```bash
+cp themes/<name>.conf ~/.config/ghostty/themes/
+# reload Ghostty: cmd + shift + ,
+```
+
+**Developer mode** — `~/.local/bin/gtheme` is a symlink to `bin/gtheme` in this repo. Auto-update detects symlinks and skips, so edits apply immediately.
+
+**Execute permission** — always run `git update-index --chmod=+x bin/gtheme` before committing bin/gtheme, or use the alias: `git add . && git update-index --chmod=+x bin/gtheme && git commit`.
 
 ## Repo structure
 
-- `bin/gtheme` — the CLI (pure bash, no dependencies beyond curl)
-- `themes/` — bundled default themes (shipped with install.sh)
-- `registry/themes/` — community theme files (added via issue review)
-- `registry/index.json` — community theme index (name, author, description, font, colors, tags)
-- `docs/index.html` — GitHub Pages marketplace site (reads index.json from raw GitHub URL)
-- `install.sh` — one-liner installer
-- `VERSION` — current version string, fetched by auto-update logic
-
-## Adding a community theme
-
-When someone submits a theme via the GitHub issue form:
-1. Copy their `.conf` to `registry/themes/<name>.conf`
-2. Add an entry to `registry/index.json` with all named color fields (background, foreground, prompt, directory, success, error)
-3. Commit and push — the marketplace site updates automatically
-
-## Updating bundled themes locally
-
-The repo themes at `themes/` and the local active Ghostty themes at `~/.config/ghostty/themes/` are separate files. After editing a bundled theme in the repo, always sync it locally so Ghostty reflects the change:
-
-```bash
-cp themes/synthwave-noir.conf ~/.config/ghostty/themes/
-cp themes/ocean-depths.conf ~/.config/ghostty/themes/
-cp themes/ember-ash.conf ~/.config/ghostty/themes/
-cp themes/forest-dark.conf ~/.config/ghostty/themes/
-# then reload Ghostty: cmd + shift + ,
 ```
-
-## Developer mode
-
-If `~/.local/bin/gtheme` is a symlink to `bin/gtheme` in this repo, auto-update skips it — edits take effect immediately without any overwrite risk.
+bin/gtheme          — CLI (pure bash)
+themes/             — bundled themes (copied to ~/.config/ghostty/themes/ on install)
+registry/themes/    — community theme .conf files
+registry/index.json — community theme metadata (drives the marketplace)
+docs/index.html     — GitHub Pages marketplace (reads index.json from raw GitHub)
+install.sh          — one-liner curl installer
+VERSION             — current version string (fetched by auto-update)
+```
