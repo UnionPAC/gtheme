@@ -241,6 +241,14 @@ cmd_add() {
   local name="$1"
   local target="$THEMES_DIR/$name.conf"
 
+  local reserved="list search add remove update submit version help"
+  for word in $reserved; do
+    if [[ "$name" == "$word" ]]; then
+      echo "Error: '$name' is a reserved command name and cannot be used as a theme name."
+      exit 1
+    fi
+  done
+
   if [[ -f "$target" ]]; then
     echo "Theme '$name' is already installed."
     exit 0
@@ -326,6 +334,11 @@ EOF
 }
 
 # ── startup ──────────────────────────────────────────────────────────────────
+
+# Warn if active symlink points to a deleted theme
+if [[ -L "$ACTIVE" && ! -f "$ACTIVE" ]]; then
+  echo "⚠  Active theme is missing — run 'gtheme list' and switch to a valid theme."
+fi
 
 show_update_notice
 auto_update
