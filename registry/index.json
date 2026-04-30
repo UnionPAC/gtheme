@@ -2,45 +2,45 @@
   {
     "name": "synthwave-noir",
     "author": "UnionPAC",
-    "description": "Neon lights and deep city nights. Hot pink, violet, and electric cyan on near-black.",
+    "description": "Rain-soaked neon city. Hot pink, electric purple, and neon cyan on deep purple-black.",
     "font": "JetBrainsMono Nerd Font",
     "tags": ["dark", "neon", "retro"],
     "colors": {
-      "background": "#0b0d1a",
-      "accent": ["#ff4b82", "#00d4ff", "#c77dff", "#00e5a0", "#ffcc00"]
+      "background": "#0d0010",
+      "accent": ["#ff006e", "#d500f9", "#00e5ff", "#00ff9f", "#ffcc00"]
     }
   },
   {
     "name": "ocean-depths",
     "author": "UnionPAC",
-    "description": "Bioluminescent abyss. Deep teals, seafoam, and coral on deep navy.",
+    "description": "Bioluminescent abyss. Cold blue-grey foreground, glowing teal accents on near-black.",
     "font": "CaskaydiaCove Nerd Font",
     "tags": ["dark", "cool", "minimal"],
     "colors": {
-      "background": "#060c14",
-      "accent": ["#00f5cc", "#4da6ff", "#00e5d4", "#ff6b6b", "#9b6bd6"]
+      "background": "#020810",
+      "accent": ["#00ffee", "#00e8d4", "#00c4a0", "#6a4c93", "#c85a7a"]
     }
   },
   {
     "name": "ember-ash",
     "author": "UnionPAC",
-    "description": "Forge heat and smoldering coal. Amber, ember red, and gold on dark charcoal.",
+    "description": "Forge heat and smoldering coal. Warm cream foreground, molten amber and fire red on dark charcoal.",
     "font": "FiraCode Nerd Font",
     "tags": ["dark", "warm", "retro"],
     "colors": {
-      "background": "#0f0a06",
-      "accent": ["#ff7700", "#ffc107", "#ff5722", "#e84040", "#8bc34a"]
+      "background": "#100a04",
+      "accent": ["#ff7700", "#ffaa00", "#e83030", "#ff4010", "#e89020"]
     }
   },
   {
     "name": "forest-dark",
     "author": "UnionPAC",
-    "description": "Old growth canopy, moss and rain. Neon lime, forest green, and earth tones on near-black.",
+    "description": "Old growth canopy, moss and rain. Green-tinted foreground and white, vibrant emerald accents on forest black.",
     "font": "Hack Nerd Font",
     "tags": ["dark", "nature", "minimal"],
     "colors": {
-      "background": "#050e06",
-      "accent": ["#7eff47", "#4caf50", "#26a69a", "#c8b400", "#4488aa"]
+      "background": "#050c05",
+      "accent": ["#00ff41", "#2ecc71", "#1abc9c", "#a8b840", "#c84040"]
     }
   }
 ]
