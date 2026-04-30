@@ -27,8 +27,20 @@ git push
 
 When someone submits a theme via the GitHub issue form:
 1. Copy their `.conf` to `registry/themes/<name>.conf`
-2. Add an entry to `registry/index.json` (include `colors.background` and `colors.accent` array for marketplace swatches)
+2. Add an entry to `registry/index.json` with all named color fields (background, foreground, prompt, directory, success, error)
 3. Commit and push — the marketplace site updates automatically
+
+## Updating bundled themes locally
+
+The repo themes at `themes/` and the local active Ghostty themes at `~/.config/ghostty/themes/` are separate files. After editing a bundled theme in the repo, always sync it locally so Ghostty reflects the change:
+
+```bash
+cp themes/synthwave-noir.conf ~/.config/ghostty/themes/
+cp themes/ocean-depths.conf ~/.config/ghostty/themes/
+cp themes/ember-ash.conf ~/.config/ghostty/themes/
+cp themes/forest-dark.conf ~/.config/ghostty/themes/
+# then reload Ghostty: cmd + shift + ,
+```
 
 ## Developer mode
 
