@@ -40,13 +40,12 @@ font_installed() {
   local name="$1"
   local stem="${name%% Nerd*}"
   local pattern="${stem// /}"
-  find \
-    "$HOME/Library/Fonts" \
-    "/Library/Fonts" \
-    "$HOME/.local/share/fonts" \
-    "/usr/share/fonts" \
-    "/usr/local/share/fonts" \
-    -maxdepth 3 -iname "*${pattern}*" 2>/dev/null | grep -q .
+  local dirs=()
+  for d in "$HOME/Library/Fonts" "/Library/Fonts" "$HOME/.local/share/fonts" "/usr/share/fonts" "/usr/local/share/fonts"; do
+    [[ -d "$d" ]] && dirs+=("$d")
+  done
+  [[ ${#dirs[@]} -eq 0 ]] && return 1
+  find "${dirs[@]}" -maxdepth 3 -iname "*${pattern}*" 2>/dev/null | grep -q .
 }
 
 require_cmd() {
