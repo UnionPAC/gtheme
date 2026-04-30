@@ -161,12 +161,6 @@ cmd_switch() {
   local name="$1"
   local target="$THEMES_DIR/$name.conf"
 
-  if [[ ! -f "$target" ]]; then
-    echo "Error: theme '$name' not found locally."
-    echo "Try: gtheme search $name"
-    exit 1
-  fi
-
   if [[ "$(active_name)" == "$name" ]]; then
     echo "Already using: $name"
     exit 0
@@ -355,5 +349,12 @@ case "${1:-}" in
   submit)            cmd_submit ;;
   help|--help|-h)    cmd_help ;;
   "")                cmd_help ;;
-  *)                 cmd_switch "$1" ;;
+  *)
+    if [[ -f "$THEMES_DIR/$1.conf" ]]; then
+      cmd_switch "$1"
+    else
+      echo "Unknown command: '$1'. Run 'gtheme help' to see available commands."
+      exit 1
+    fi
+    ;;
 esac
