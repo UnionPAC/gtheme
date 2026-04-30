@@ -40,8 +40,13 @@ font_installed() {
   local name="$1"
   local stem="${name%% Nerd*}"
   local pattern="${stem// /}"
-  find "$HOME/Library/Fonts" "/Library/Fonts" -maxdepth 2 \
-    -iname "*${pattern}*" 2>/dev/null | grep -q .
+  find \
+    "$HOME/Library/Fonts" \
+    "/Library/Fonts" \
+    "$HOME/.local/share/fonts" \
+    "/usr/share/fonts" \
+    "/usr/local/share/fonts" \
+    -maxdepth 3 -iname "*${pattern}*" 2>/dev/null | grep -q .
 }
 
 require_cmd() {
@@ -125,6 +130,20 @@ cmd_update() {
 # ── commands ─────────────────────────────────────────────────────────────────
 
 cmd_list() {
+  local found=0
+  for f in "$THEMES_DIR"/*.conf; do
+    [[ -e "$f" ]] || continue
+    name="$(basename "$f" .conf)"
+    [[ "$name" == "active" ]] && continue
+    found=1
+  done
+
+  if [[ "$found" -eq 0 ]]; then
+    echo "No themes installed."
+    echo "Browse the community registry: gtheme search"
+    return
+  fi
+
   echo "Installed themes:"
   echo ""
   for f in "$THEMES_DIR"/*.conf; do
@@ -164,15 +183,44 @@ cmd_switch() {
 cmd_search() {
   require_cmd curl
   local query="${1:-}"
-  echo "Fetching registry..."
   local index
-  index="$(curl -fsSL "$REGISTRY_BASE/index.json")"
+  index="$(curl -fsSL --max-time 5 "$REGISTRY_BASE/index.json" 2>/dev/null)"
 
-  if [[ -z "$query" ]]; then
-    echo "$index" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//'
-  else
-    echo "$index" | grep -i "$query" | grep -o '"name":"[^"]*"' | sed 's/"name":"//;s/"//' || echo "No themes found matching '$query'."
+  if [[ -z "$index" ]]; then
+    echo "Could not reach registry. Check your connection."
+    exit 1
   fi
+
+  # Parse with python for clean output (available on macOS and most Linux)
+  python3 - <<EOF
+import json, sys
+
+index = json.loads('''$index''')
+query = "${query}".lower()
+
+results = [
+    t for t in index
+    if not query
+    or query in t["name"]
+    or query in t.get("description","").lower()
+    or any(query in tag for tag in t.get("tags", []))
+    or query in t.get("author","").lower()
+]
+
+if not results:
+    print(f"No themes found matching '{query}'.")
+    sys.exit(0)
+
+print(f"{len(results)} theme{'s' if len(results) != 1 else ''} found:\n")
+for t in results:
+    installed = ""
+    tags = "  [" + ", ".join(t.get("tags", [])) + "]" if t.get("tags") else ""
+    print(f"  {t['name']}{tags}")
+    print(f"  {t.get('description','')}")
+    print(f"  by @{t.get('author','')}  ·  font: {t.get('font','')}")
+    print(f"  gtheme add {t['name']}")
+    print()
+EOF
 }
 
 cmd_add() {
@@ -224,6 +272,10 @@ cmd_remove() {
   echo "Removed: $name"
 }
 
+cmd_version() {
+  echo "gtheme v$VERSION"
+}
+
 cmd_submit() {
   local url="https://github.com/UnionPAC/gtheme/issues/new?template=submit-theme.yml"
   echo "Opening theme submission form in your browser..."
@@ -252,6 +304,7 @@ Usage:
   gtheme remove <name>         Remove an installed theme
   gtheme update                Update gtheme to the latest version
   gtheme submit                Share your theme with the community
+  gtheme version               Show the current version
   gtheme help                  Show this help
 
 Reload Ghostty after switching: cmd + shift + ,
@@ -272,6 +325,7 @@ case "${1:-}" in
   add)               [[ -z "${2:-}" ]] && { echo "Usage: gtheme add <name>"; exit 1; }; cmd_add "$2" ;;
   remove|rm)         [[ -z "${2:-}" ]] && { echo "Usage: gtheme remove <name>"; exit 1; }; cmd_remove "$2" ;;
   update)            cmd_update ;;
+  version|--version) cmd_version ;;
   submit)            cmd_submit ;;
   help|--help|-h)    cmd_help ;;
   "")                cmd_help ;;

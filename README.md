@@ -16,9 +16,13 @@ gtheme <name>                # switch to a theme
 gtheme search [query]        # search the community registry
 gtheme add <name>            # install a theme from the community
 gtheme remove <name>         # remove an installed theme
+gtheme update                # update gtheme to the latest version
 gtheme submit                # share your theme with the community
+gtheme version               # show the current version
 gtheme help                  # show all commands
 ```
+
+gtheme checks for updates automatically once a day in the background — you'll see a one-line notice the next time you run any command after an update lands.
 
 After switching, reload Ghostty with `cmd + shift + ,` — no restart needed.
 
