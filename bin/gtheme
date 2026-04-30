@@ -167,6 +167,11 @@ cmd_switch() {
     exit 1
   fi
 
+  if [[ "$(active_name)" == "$name" ]]; then
+    echo "Already using: $name"
+    exit 0
+  fi
+
   ln -sf "$target" "$ACTIVE"
 
   local font cask
@@ -191,36 +196,44 @@ cmd_search() {
     exit 1
   fi
 
-  # Parse with python for clean output (available on macOS and most Linux)
-  python3 - <<EOF
-import json, sys
+  if ! command -v python3 &>/dev/null; then
+    # fallback: basic grep output
+    echo "Tip: install python3 for richer search output."
+    echo ""
+    echo "$index" | grep -o '"name":"[^"]*"\|"description":"[^"]*"' \
+      | sed 's/"name":"//;s/"description":"//;s/"//' \
+      | grep -i "${query:-.}" || echo "No themes found matching '$query'."
+    return
+  fi
 
-index = json.loads('''$index''')
-query = "${query}".lower()
+  echo "$index" | GTHEME_QUERY="$query" python3 -c '
+import json, sys, os
+
+index = json.loads(sys.stdin.read())
+query = os.environ.get("GTHEME_QUERY", "").lower()
 
 results = [
     t for t in index
     if not query
     or query in t["name"]
-    or query in t.get("description","").lower()
+    or query in t.get("description", "").lower()
     or any(query in tag for tag in t.get("tags", []))
-    or query in t.get("author","").lower()
+    or query in t.get("author", "").lower()
 ]
 
 if not results:
-    print(f"No themes found matching '{query}'.")
+    print(f"No themes found matching \"{query}\".")
     sys.exit(0)
 
-print(f"{len(results)} theme{'s' if len(results) != 1 else ''} found:\n")
+print(f"{len(results)} theme{\"s\" if len(results) != 1 else \"\"} found:\n")
 for t in results:
-    installed = ""
     tags = "  [" + ", ".join(t.get("tags", [])) + "]" if t.get("tags") else ""
-    print(f"  {t['name']}{tags}")
-    print(f"  {t.get('description','')}")
-    print(f"  by @{t.get('author','')}  ·  font: {t.get('font','')}")
-    print(f"  gtheme add {t['name']}")
+    print(f"  {t[\"name\"]}{tags}")
+    print(f"  {t.get(\"description\", \"\")}")
+    print(f"  by @{t.get(\"author\", \"\")}  ·  font: {t.get(\"font\", \"\")}")
+    print(f"  gtheme add {t[\"name\"]}")
     print()
-EOF
+'
 }
 
 cmd_add() {
