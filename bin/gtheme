@@ -4,10 +4,15 @@
 
 set -euo pipefail
 
+VERSION="0.1.0"
 THEMES_DIR="${GTHEME_DIR:-$HOME/.config/ghostty/themes}"
 ACTIVE="$THEMES_DIR/active.conf"
 GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
 REGISTRY_BASE="https://raw.githubusercontent.com/UnionPAC/gtheme/main/registry"
+BINARY_URL="https://raw.githubusercontent.com/UnionPAC/gtheme/main/bin/gtheme"
+VERSION_URL="https://raw.githubusercontent.com/UnionPAC/gtheme/main/VERSION"
+UPDATE_CHECK_FILE="$THEMES_DIR/.gtheme_last_check"
+UPDATE_NOTICE_FILE="$THEMES_DIR/.gtheme_updated"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -41,6 +46,80 @@ font_installed() {
 
 require_cmd() {
   command -v "$1" &>/dev/null || { echo "Error: '$1' is required but not installed."; exit 1; }
+}
+
+show_update_notice() {
+  if [[ -f "$UPDATE_NOTICE_FILE" ]]; then
+    local version
+    version=$(cat "$UPDATE_NOTICE_FILE")
+    echo "✓ gtheme updated to v$version"
+    rm -f "$UPDATE_NOTICE_FILE"
+  fi
+}
+
+auto_update() {
+  # Skip if running from a symlink (developer mode)
+  local self
+  self="$(command -v gtheme 2>/dev/null || echo "$0")"
+  [[ -L "$self" ]] && return
+
+  # Only check once per day
+  if [[ -f "$UPDATE_CHECK_FILE" ]]; then
+    local last_check now
+    last_check=$(cat "$UPDATE_CHECK_FILE")
+    now=$(date +%s)
+    (( now - last_check < 86400 )) && return
+  fi
+
+  # Background: check version, download if newer
+  (
+    date +%s > "$UPDATE_CHECK_FILE"
+    local latest
+    latest=$(curl -fsSL --max-time 3 "$VERSION_URL" 2>/dev/null | tr -d '[:space:]')
+    [[ -z "$latest" || "$latest" == "$VERSION" ]] && exit 0
+    local tmp
+    tmp=$(mktemp)
+    if curl -fsSL --max-time 10 "$BINARY_URL" -o "$tmp" 2>/dev/null; then
+      chmod +x "$tmp"
+      mv "$tmp" "$self"
+      echo "$latest" > "$UPDATE_NOTICE_FILE"
+    else
+      rm -f "$tmp"
+    fi
+  ) &>/dev/null &
+  disown
+}
+
+cmd_update() {
+  local self
+  self="$(command -v gtheme 2>/dev/null || echo "$0")"
+  if [[ -L "$self" ]]; then
+    echo "Running in developer mode (symlink detected) — skipping update."
+    exit 0
+  fi
+  echo "Checking for updates..."
+  local latest
+  latest=$(curl -fsSL --max-time 5 "$VERSION_URL" 2>/dev/null | tr -d '[:space:]')
+  if [[ -z "$latest" ]]; then
+    echo "Could not reach update server. Check your connection."
+    exit 1
+  fi
+  if [[ "$latest" == "$VERSION" ]]; then
+    echo "Already up to date (v$VERSION)."
+    exit 0
+  fi
+  echo "Updating v$VERSION → v$latest..."
+  local tmp
+  tmp=$(mktemp)
+  if curl -fsSL --max-time 10 "$BINARY_URL" -o "$tmp" 2>/dev/null; then
+    chmod +x "$tmp"
+    mv "$tmp" "$self"
+    echo "Done. gtheme is now v$latest."
+  else
+    rm -f "$tmp"
+    echo "Update failed. Try again or re-run the installer."
+    exit 1
+  fi
 }
 
 # ── commands ─────────────────────────────────────────────────────────────────
@@ -171,13 +250,19 @@ Usage:
   gtheme search [query]        Search the community registry
   gtheme add <name>            Install a theme from the registry
   gtheme remove <name>         Remove an installed theme
-  gtheme submit                How to share your theme
+  gtheme update                Update gtheme to the latest version
+  gtheme submit                Share your theme with the community
   gtheme help                  Show this help
 
 Reload Ghostty after switching: cmd + shift + ,
 Browse community themes: https://unionpac.github.io/gtheme
 EOF
 }
+
+# ── startup ──────────────────────────────────────────────────────────────────
+
+show_update_notice
+auto_update
 
 # ── router ───────────────────────────────────────────────────────────────────
 
@@ -186,6 +271,7 @@ case "${1:-}" in
   search)            cmd_search "${2:-}" ;;
   add)               [[ -z "${2:-}" ]] && { echo "Usage: gtheme add <name>"; exit 1; }; cmd_add "$2" ;;
   remove|rm)         [[ -z "${2:-}" ]] && { echo "Usage: gtheme remove <name>"; exit 1; }; cmd_remove "$2" ;;
+  update)            cmd_update ;;
   submit)            cmd_submit ;;
   help|--help|-h)    cmd_help ;;
   "")                cmd_help ;;
