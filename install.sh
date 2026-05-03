@@ -42,11 +42,32 @@ if [[ ! -f "$GHOSTTY_CONFIG" ]] || ! grep -q "config-file.*themes/active.conf" "
   echo "  * updated: $GHOSTTY_CONFIG"
 fi
 
-# PATH check
+# PATH setup — auto-add to shell config if needed
 if ! echo "$PATH" | grep -q "$BIN_DIR"; then
+  # Pick the right shell config file
+  if [[ "$SHELL" == */zsh ]]; then
+    SHELL_RC="$HOME/.zshrc"
+  elif [[ "$SHELL" == */bash ]]; then
+    SHELL_RC="$HOME/.bashrc"
+  else
+    SHELL_RC="$HOME/.profile"
+  fi
+
+  PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\""
+
+  # Create the file if it doesn't exist, then append if the line isn't already there
+  touch "$SHELL_RC"
+  if ! grep -qF '.local/bin' "$SHELL_RC"; then
+    echo "" >> "$SHELL_RC"
+    echo "# Added by gtheme installer" >> "$SHELL_RC"
+    echo "$PATH_LINE" >> "$SHELL_RC"
+    echo "  * PATH updated in $SHELL_RC"
+  fi
+
   echo ""
-  echo "  Add gtheme to your PATH by adding this to your ~/.zshrc or ~/.bashrc:"
-  echo "    export PATH=\"\$HOME/.local/bin:\$PATH\""
+  echo "  To use gtheme right now, run:"
+  echo "    source $SHELL_RC"
+  echo "  (Or just open a new terminal — it'll work automatically)"
 fi
 
 echo ""

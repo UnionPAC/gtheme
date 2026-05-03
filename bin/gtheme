@@ -234,7 +234,7 @@ cmd_add() {
   local name="$1"
   local target="$THEMES_DIR/$name.conf"
 
-  local reserved="list search add remove update submit version help"
+  local reserved="list search add remove update uninstall submit version help"
   for word in $reserved; do
     if [[ "$name" == "$word" ]]; then
       echo "Error: '$name' is a reserved command name and cannot be used as a theme name."
@@ -290,6 +290,72 @@ cmd_version() {
   echo "gtheme v$VERSION"
 }
 
+cmd_uninstall() {
+  local self
+  self="$(command -v gtheme 2>/dev/null || echo "$0")"
+
+  echo "This will remove:"
+  echo "  - gtheme binary ($self)"
+  echo "  - Bundled themes from $THEMES_DIR"
+  echo "  - active.conf symlink"
+  echo "  - gtheme line from Ghostty config"
+  echo "  - gtheme PATH entry from shell config files"
+  echo ""
+
+  # Warn about community themes that would be left behind
+  local extras=()
+  local bundled="synthwave-noir ocean-depths ember-ash forest-dark"
+  for f in "$THEMES_DIR"/*.conf; do
+    [[ -e "$f" ]] || continue
+    name="$(basename "$f" .conf)"
+    [[ "$name" == "active" ]] && continue
+    echo "$bundled" | grep -qw "$name" || extras+=("$name")
+  done
+  if [[ ${#extras[@]} -gt 0 ]]; then
+    echo "Community themes will NOT be removed (delete manually if wanted):"
+    for t in "${extras[@]}"; do echo "  $THEMES_DIR/$t.conf"; done
+    echo ""
+  fi
+
+  read -r -p "Uninstall gtheme? [y/N] " confirm
+  [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 0; }
+  echo ""
+
+  # Bundled themes + active symlink + update state files
+  for theme in synthwave-noir ocean-depths ember-ash forest-dark; do
+    rm -f "$THEMES_DIR/$theme.conf"
+  done
+  rm -f "$ACTIVE" "$UPDATE_CHECK_FILE" "$UPDATE_NOTICE_FILE"
+  echo "  - removed bundled themes and active symlink"
+
+  # Remove config-file line from Ghostty config
+  if [[ -f "$GHOSTTY_CONFIG" ]] && grep -q "config-file.*themes/active.conf" "$GHOSTTY_CONFIG"; then
+    local tmp
+    tmp=$(mktemp)
+    grep -v "config-file.*themes/active.conf" "$GHOSTTY_CONFIG" > "$tmp" && mv "$tmp" "$GHOSTTY_CONFIG"
+    echo "  - cleaned Ghostty config"
+  fi
+
+  # Remove PATH entry from shell rc files
+  for rc in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+    if [[ -f "$rc" ]] && grep -qE '\.local/bin' "$rc"; then
+      local tmp
+      tmp=$(mktemp)
+      grep -v "# Added by gtheme installer" "$rc" \
+        | grep -v 'export PATH=.*\.local/bin' > "$tmp" \
+        && mv "$tmp" "$rc"
+      echo "  - cleaned PATH from $rc"
+    fi
+  done
+
+  # Remove binary last
+  rm -f "$self"
+  echo "  - removed gtheme binary"
+
+  echo ""
+  echo "gtheme has been uninstalled. Open a new terminal to clear the PATH."
+}
+
 cmd_submit() {
   local url="https://github.com/UnionPAC/gtheme/issues/new?template=submit-theme.yml"
   echo "Opening theme submission form in your browser..."
@@ -317,6 +383,7 @@ Usage:
   gtheme add <name>            Install a theme from the registry
   gtheme remove <name>         Remove an installed theme
   gtheme update                Update gtheme to the latest version
+  gtheme uninstall             Remove gtheme from your system
   gtheme submit                Share your theme with the community
   gtheme version               Show the current version
   gtheme help                  Show this help
@@ -344,6 +411,7 @@ case "${1:-}" in
   add)               [[ -z "${2:-}" ]] && { echo "Usage: gtheme add <name>"; exit 1; }; cmd_add "$2" ;;
   remove|rm)         [[ -z "${2:-}" ]] && { echo "Usage: gtheme remove <name>"; exit 1; }; cmd_remove "$2" ;;
   update)            cmd_update ;;
+  uninstall)         cmd_uninstall ;;
   version|--version) cmd_version ;;
   submit)            cmd_submit ;;
   help|--help|-h)    cmd_help ;;
