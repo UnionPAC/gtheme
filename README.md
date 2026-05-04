@@ -4,6 +4,16 @@ A lightweight theme switcher for [Ghostty](https://ghostty.org) with a community
 
 ---
 
+- [Installation](#installation)
+- [Commands](#commands)
+- [How it works](#how-it-works)
+- [Bundled themes](#bundled-themes)
+- [Using a local theme](#using-a-local-theme)
+- [Creating a theme](#creating-a-theme)
+- [Sharing your theme](#sharing-your-theme)
+
+---
+
 ## Installation
 
 Run the following command in your terminal:
@@ -17,18 +27,55 @@ curl -fsSL https://raw.githubusercontent.com/UnionPAC/gtheme/main/install.sh | b
 ## Commands
 
 ```bash
-gtheme list                  # list your installed themes
-gtheme <name>                # switch to a theme
-gtheme search [query]        # search the community registry
+gtheme list                  # browse and switch themes (interactive picker)
+gtheme <name>                # switch directly to a named theme
+gtheme search                # browse the community registry (opens browser)
 gtheme add <name>            # install a theme from the community
 gtheme remove <name>         # remove an installed theme
 gtheme update                # update gtheme to the latest version
+gtheme uninstall             # remove gtheme from your system
 gtheme submit                # share your theme with the community
 gtheme version               # show the current version
 gtheme help                  # show all commands
 ```
 
 After switching, reload Ghostty with `cmd + shift + ,` — no restart needed.
+
+---
+
+## How it works
+
+gtheme stores themes in `~/.config/ghostty/themes/` and tracks the active theme with a symlink (`active.conf`). Your Ghostty config loads that symlink via `config-file`. Switching themes just updates the symlink — instant, no manual config editing needed.
+
+The community registry lives in this repo. `gtheme add` pulls `.conf` files directly from GitHub — no server, no package manager, no dependencies beyond `curl` and `bash`.
+
+---
+
+## Bundled themes
+
+gtheme ships with four themes to get you started:
+
+| Name | Vibe | Font |
+|------|------|------|
+| `synthwave-noir` | neon city nights | JetBrainsMono Nerd Font |
+| `ocean-depths` | bioluminescent abyss | CaskaydiaCove Nerd Font |
+| `ember-ash` | forge heat, smoldering coal | FiraCode Nerd Font |
+| `forest-dark` | old growth canopy, moss & rain | Hack Nerd Font |
+
+---
+
+## Using a local theme
+
+Once you've created a `.conf` file, drop it into your themes folder and gtheme picks it up automatically:
+
+```bash
+cp my-theme.conf ~/.config/ghostty/themes/
+
+# switch to it
+gtheme my-theme
+```
+
+That's it. Your local themes and community themes live in the same place and work exactly the same way.
 
 ---
 
@@ -86,21 +133,6 @@ Full list of available options: [ghostty.org/docs/config/reference](https://ghos
 
 ---
 
-## Using a local theme
-
-Once you've created a `.conf` file, drop it into your themes folder and gtheme picks it up automatically:
-
-```bash
-cp my-theme.conf ~/.config/ghostty/themes/
-
-# switch to it
-gtheme my-theme
-```
-
-That's it. Your local themes and community themes live in the same place and work exactly the same way.
-
----
-
 ## Sharing your theme
 
 If you want to share your theme with the community so others can install it with `gtheme add`, run:
@@ -120,24 +152,3 @@ A small set of named colors picked from your `.conf` — background, foreground,
 Once submitted, the form auto-generates a PR. After it's reviewed and merged, your theme appears on the marketplace and is installable with `gtheme add <your-theme-name>`.
 
 Browse community themes → **[unionpac.github.io/gtheme](https://unionpac.github.io/gtheme)**
-
----
-
-## Bundled themes
-
-gtheme ships with four themes to get you started:
-
-| Name | Vibe | Font |
-|------|------|------|
-| `synthwave-noir` | neon city nights | JetBrainsMono Nerd Font |
-| `ocean-depths` | bioluminescent abyss | CaskaydiaCove Nerd Font |
-| `ember-ash` | forge heat, smoldering coal | FiraCode Nerd Font |
-| `forest-dark` | old growth canopy, moss & rain | Hack Nerd Font |
-
----
-
-## How it works
-
-gtheme stores themes in `~/.config/ghostty/themes/` and tracks the active theme with a symlink (`active.conf`). Your Ghostty config loads that symlink via `config-file`. Switching themes just updates the symlink — instant, no manual config editing needed.
-
-The community registry lives in this repo. `gtheme add` pulls `.conf` files directly from GitHub — no server, no package manager, no dependencies beyond `curl` and `bash`.

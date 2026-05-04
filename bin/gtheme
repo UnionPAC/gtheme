@@ -129,31 +129,83 @@ cmd_update() {
 # ── commands ─────────────────────────────────────────────────────────────────
 
 cmd_list() {
-  local found=0
+  local themes=() name
   for f in "$THEMES_DIR"/*.conf; do
     [[ -e "$f" ]] || continue
     name="$(basename "$f" .conf)"
     [[ "$name" == "active" ]] && continue
-    found=1
+    themes+=("$name")
   done
 
-  if [[ "$found" -eq 0 ]]; then
+  if [[ ${#themes[@]} -eq 0 ]]; then
     echo "No themes installed."
     echo "Browse the community registry: gtheme search"
     return
   fi
 
-  echo "Installed themes:"
-  echo ""
-  for f in "$THEMES_DIR"/*.conf; do
-    name="$(basename "$f" .conf)"
-    [[ "$name" == "active" ]] && continue
-    if [[ "$(active_name)" == "$name" ]]; then
-      echo "  * $name  (active)"
-    else
-      echo "    $name"
-    fi
+  local current selected=0 total=${#themes[@]}
+  current="$(active_name)"
+  for i in "${!themes[@]}"; do
+    [[ "${themes[$i]}" == "$current" ]] && selected=$i
   done
+
+  local old_stty
+  old_stty="$(stty -g)"
+
+  _restore_term() { stty "$old_stty"; printf "\033[?25h"; }
+  trap '_restore_term' EXIT INT TERM
+
+  stty -echo -icanon min 1 time 0
+  printf "\033[?25l"
+
+  local first_draw=1
+  _draw() {
+    if [[ "$first_draw" -eq 0 ]]; then printf "\033[%dA" "$((total + 1))"; fi
+    first_draw=0
+    printf "\r\033[K\033[2m  ↑↓ navigate · enter select · q cancel\033[0m\n"
+    local i suffix
+    for i in "${!themes[@]}"; do
+      suffix=""
+      [[ "${themes[$i]}" == "$current" ]] && suffix="  (active)"
+      if [[ "$i" -eq "$selected" ]]; then
+        printf "\r\033[K\033[1;36m› %s%s\033[0m\n" "${themes[$i]}" "$suffix"
+      else
+        printf "\r\033[K  %s%s\n" "${themes[$i]}" "$suffix"
+      fi
+    done
+  }
+
+  _draw
+
+  local key key2 key3
+  while true; do
+    IFS= read -r -s -n1 key || true
+    if [[ "$key" == $'\x1b' ]]; then
+      IFS= read -r -s -n1 -t 1 key2 || true
+      if [[ "${key2:-}" == "[" ]]; then
+        IFS= read -r -s -n1 -t 1 key3 || true
+        case "${key3:-}" in
+          A) if [[ $selected -gt 0 ]]; then selected=$(( selected - 1 )); fi ;;
+          B) if [[ $selected -lt $((total - 1)) ]]; then selected=$(( selected + 1 )); fi ;;
+        esac
+      else
+        break
+      fi
+    elif [[ "$key" == $'\r' || "$key" == $'\n' || "$key" == "" ]]; then
+      trap - EXIT INT TERM
+      _restore_term
+      printf "\n"
+      cmd_switch "${themes[$selected]}"
+      return
+    elif [[ "$key" == "q" || "$key" == "Q" ]]; then
+      break
+    fi
+    _draw
+  done
+
+  trap - EXIT INT TERM
+  _restore_term
+  printf "\n"
 }
 
 cmd_switch() {
@@ -179,54 +231,16 @@ cmd_switch() {
 }
 
 cmd_search() {
-  require_cmd curl
-  local query="${1:-}"
-  local index
-  index="$(curl -fsSL --max-time 5 "$REGISTRY_BASE/index.json" 2>/dev/null)"
-
-  if [[ -z "$index" ]]; then
-    echo "Could not reach registry. Check your connection."
-    exit 1
+  local url="https://unionpac.github.io/gtheme"
+  echo "Opening community themes in your browser..."
+  echo "URL: $url"
+  if command -v open &>/dev/null; then
+    open "$url"
+  elif command -v xdg-open &>/dev/null; then
+    xdg-open "$url"
+  else
+    echo "Open the URL above in your browser to browse themes."
   fi
-
-  if ! command -v python3 &>/dev/null; then
-    # fallback: basic grep output
-    echo "Tip: install python3 for richer search output."
-    echo ""
-    echo "$index" | grep -o '"name":"[^"]*"\|"description":"[^"]*"' \
-      | sed 's/"name":"//;s/"description":"//;s/"//' \
-      | grep -i "${query:-.}" || echo "No themes found matching '$query'."
-    return
-  fi
-
-  echo "$index" | GTHEME_QUERY="$query" python3 -c '
-import json, sys, os
-
-index = json.loads(sys.stdin.read())
-query = os.environ.get("GTHEME_QUERY", "").lower()
-
-results = [
-    t for t in index
-    if not query
-    or query in t["name"]
-    or query in t.get("description", "").lower()
-    or any(query in tag for tag in t.get("tags", []))
-    or query in t.get("author", "").lower()
-]
-
-if not results:
-    print(f"No themes found matching \"{query}\".")
-    sys.exit(0)
-
-print(f"{len(results)} theme{\"s\" if len(results) != 1 else \"\"} found:\n")
-for t in results:
-    tags = "  [" + ", ".join(t.get("tags", [])) + "]" if t.get("tags") else ""
-    print(f"  {t[\"name\"]}{tags}")
-    print(f"  {t.get(\"description\", \"\")}")
-    print(f"  by @{t.get(\"author\", \"\")}  ·  font: {t.get(\"font\", \"\")}")
-    print(f"  gtheme add {t[\"name\"]}")
-    print()
-'
 }
 
 cmd_add() {
@@ -377,9 +391,9 @@ cmd_help() {
 gtheme — Ghostty theme switcher
 
 Usage:
-  gtheme list                  List installed themes
-  gtheme <name>                Switch to a theme
-  gtheme search [query]        Search the community registry
+  gtheme list                  Browse and switch themes (interactive)
+  gtheme <name>                Switch directly to a named theme
+  gtheme search                Browse the community registry (opens browser)
   gtheme add <name>            Install a theme from the registry
   gtheme remove <name>         Remove an installed theme
   gtheme update                Update gtheme to the latest version
@@ -407,7 +421,7 @@ auto_update
 
 case "${1:-}" in
   list)              cmd_list ;;
-  search)            cmd_search "${2:-}" ;;
+  search)            cmd_search ;;
   add)               [[ -z "${2:-}" ]] && { echo "Usage: gtheme add <name>"; exit 1; }; cmd_add "$2" ;;
   remove|rm)         [[ -z "${2:-}" ]] && { echo "Usage: gtheme remove <name>"; exit 1; }; cmd_remove "$2" ;;
   update)            cmd_update ;;

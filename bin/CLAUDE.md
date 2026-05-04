@@ -1,6 +1,6 @@
 # CLI Notes — bin/gtheme
 
-Pure bash, `set -euo pipefail`. No dependencies beyond `curl` and `python3` (python3 optional — only used for rich search output, falls back to grep).
+Pure bash, `set -euo pipefail`. No dependencies beyond `curl`.
 
 ## Script structure
 
@@ -29,20 +29,26 @@ router:      case statement — known commands first, then theme file check, the
 
 - **Unknown input** → generic error ("Unknown command. Run gtheme help."), NOT treated as theme name. Router checks for `.conf` file existence first.
 - **One submission path** — `gtheme submit` opens the GitHub issue form. No mention of fork/PR anywhere.
-- **Reserved names** — `cmd_add` rejects theme names that match command names (list, search, add, remove, etc.) so they can never conflict with the router.
+- **Reserved names** — `cmd_add` rejects theme names that match command names (list, search, add, remove, uninstall, etc.) so they can never conflict with the router.
 - **Broken symlink warning** — startup checks if `active.conf` symlink is dangling (points to deleted file) and warns immediately.
-- **`gtheme search`** — uses `echo "$index" | GTHEME_QUERY="$query" python3 -c '...'` — JSON piped via stdin, query via env var. Never embedded in heredoc (shell interpolation would corrupt special chars in theme descriptions).
 - **`cmd_switch`** — checks `active_name == name` first, exits with "Already using" if same theme.
+
+## Interactive list picker — design note
+
+`cmd_list` uses an arrow-key picker (raw terminal via `stty -echo -icanon`). This was a deliberate UX choice — low risk for Ghostty users (consistent terminal, bounded list size). If it causes issues in practice, revert `cmd_list` to the plain loop (print names, mark active with `*`) and update the README/help descriptions accordingly. The rest of the codebase is unaffected.
+
+`gtheme search` was simplified to just open the web app (`open`/`xdg-open`). The old JSON/python3 search logic was removed — too many failure modes for little gain.
 
 ## Commands reference
 
 ```
-list     — theme names only, no font info (font info only shown on switch if missing)
+list     — interactive arrow-key picker; Enter switches, q/Esc cancels; falls back to "no themes" message if empty
 <name>   — switches theme via symlink, warns if font not installed
-search   — fetches registry/index.json, filters by query, rich python3 output
+search   — opens community marketplace in browser (open/xdg-open)
 add      — downloads .conf from registry/themes/, warns if font missing
 remove   — deletes local .conf, blocks if theme is currently active
 update   — explicit manual update (same logic as auto_update but foreground)
+uninstall — removes binary, bundled themes, active symlink, Ghostty config line, PATH entry from shell rcs; leaves community themes intact; confirms before acting
 submit   — opens GitHub issue form in browser (open/xdg-open)
 version  — prints "gtheme vX.X.X"
 help     — usage summary
