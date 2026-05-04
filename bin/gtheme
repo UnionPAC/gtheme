@@ -401,8 +401,9 @@ Usage:
   gtheme uninstall             Remove gtheme from your system
   gtheme submit                Share your theme with the community
   gtheme version               Show the current version
-  gtheme help                  Show this help
+  gtheme help                  Show all commands and usage
 EOF
+echo ""
 }
 
 # ── startup ──────────────────────────────────────────────────────────────────
