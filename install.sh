@@ -72,9 +72,4 @@ fi
 
 echo ""
 echo "Done! gtheme is installed."
-echo ""
-echo "  gtheme list        — see available themes"
-echo "  gtheme <name>      — switch theme"
-echo "  gtheme search      — browse community themes"
-echo ""
-echo "Reload Ghostty after switching: cmd + shift + ,"
+echo "Run 'gtheme help' to see what you can do."
