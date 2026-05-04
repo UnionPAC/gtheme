@@ -401,9 +401,6 @@ Usage:
   gtheme submit                Share your theme with the community
   gtheme version               Show the current version
   gtheme help                  Show this help
-
-Reload Ghostty after switching: cmd + shift + ,
-Browse community themes: https://unionpac.github.io/gtheme
 EOF
 }
 
