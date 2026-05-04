@@ -147,7 +147,7 @@ for pr in json.loads(existing.stdout or "[]"):
 subprocess.run(["git", "checkout", "-b", branch], check=True)
 subprocess.run(["git", "add", conf_path, "registry/index.json"], check=True)
 subprocess.run(["git", "commit", "-m", f"Add theme: {name} (submitted by @{ISSUE_USER})"], check=True)
-subprocess.run(["git", "push", "origin", branch], check=True)
+subprocess.run(["git", "push", "--force", "origin", branch], check=True)
 
 pr_body = f"""## {name}
 
