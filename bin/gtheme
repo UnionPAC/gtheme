@@ -343,10 +343,11 @@ cmd_uninstall() {
   echo "  - removed bundled themes and active symlink"
 
   # Remove config-file line from Ghostty config
-  if [[ -f "$GHOSTTY_CONFIG" ]] && grep -q "config-file.*themes/active.conf" "$GHOSTTY_CONFIG"; then
+  if [[ -f "$GHOSTTY_CONFIG" ]] && grep -q "themes/active\.conf" "$GHOSTTY_CONFIG"; then
     local tmp
     tmp=$(mktemp)
-    grep -v "config-file.*themes/active.conf" "$GHOSTTY_CONFIG" > "$tmp" && mv "$tmp" "$GHOSTTY_CONFIG"
+    grep -v "themes/active\.conf" "$GHOSTTY_CONFIG" > "$tmp" || true
+    mv "$tmp" "$GHOSTTY_CONFIG"
     echo "  - cleaned Ghostty config"
   fi
 
