@@ -74,5 +74,23 @@
       "success": "#55e888",
       "error": "#c84040"
     }
+  },
+  {
+    "name": "cathedral-night",
+    "author": "RedJuiceBox",
+    "description": "gothic silence, candlelight, stained glass",
+    "font": "JetBrainsMono Nerd Font",
+    "tags": [
+      "dark",
+      "warm"
+    ],
+    "colors": {
+      "background": "#0a070d",
+      "foreground": "#e8dcc8",
+      "prompt": "#ffd700",
+      "directory": "#3a5f8a",
+      "success": "#3f7a5c",
+      "error": "#a83232"
+    }
   }
 ]
