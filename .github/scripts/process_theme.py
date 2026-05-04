@@ -178,11 +178,13 @@ result = subprocess.run(
         "--body", pr_body,
         "--head", branch,
         "--base", "main",
-        "--label", "theme-submission",
     ],
     capture_output=True,
     text=True,
 )
+
+if result.returncode != 0:
+    fail(f"Failed to create PR:\n```\n{result.stderr.strip()}\n```")
 
 pr_url = result.stdout.strip()
 
