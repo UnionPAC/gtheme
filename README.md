@@ -8,8 +8,7 @@ A lightweight theme switcher for [Ghostty](https://ghostty.org) with a community
 - [Commands](#commands)
 - [How it works](#how-it-works)
 - [Bundled themes](#bundled-themes)
-- [Using a local theme](#using-a-local-theme)
-- [Creating a theme](#creating-a-theme)
+- [Creating your own theme](#creating-your-own-theme)
 - [Sharing your theme](#sharing-your-theme)
 
 ---
@@ -64,26 +63,9 @@ gtheme ships with four themes to get you started:
 
 ---
 
-## Using a local theme
+## Creating your own theme
 
-Once you've created a `.conf` file, drop it into your themes folder and gtheme picks it up automatically:
-
-```bash
-cp my-theme.conf ~/.config/ghostty/themes/
-
-# switch to it
-gtheme my-theme
-```
-
-That's it. Your local themes and community themes live in the same place and work exactly the same way.
-
----
-
-## Creating a theme
-
-A gtheme theme is just a Ghostty config file (`.conf`). Anything you can put in your main Ghostty config, you can put in a theme. At minimum, a theme sets some colors and a font.
-
-Here's a starter template:
+A gtheme theme is a plain Ghostty config file (`.conf`). Create a new file — name it whatever you want — and fill it in. At minimum, a theme sets some colors and a font. Here's a starter template:
 
 ```ini
 # ── Font ──────────────────────────────────
@@ -130,6 +112,15 @@ window-colorspace = display-p3
 ```
 
 Full list of available options: [ghostty.org/docs/config/reference](https://ghostty.org/docs/config/reference)
+
+Once your file is ready, drop it into `~/.config/ghostty/themes/` and switch to it — the filename without `.conf` is the theme name:
+
+```bash
+cp my-theme.conf ~/.config/ghostty/themes/
+gtheme my-theme
+```
+
+Already have a `.conf` from somewhere else? Same steps — just copy it in and switch.
 
 ---
 
