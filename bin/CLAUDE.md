@@ -33,6 +33,12 @@ router:      case statement — known commands first, then theme file check, the
 - **Broken symlink warning** — startup checks if `active.conf` symlink is dangling (points to deleted file) and warns immediately.
 - **`cmd_switch`** — checks `active_name == name` first, exits with "Already using" if same theme.
 
+## bash arithmetic + set -e gotcha
+
+`(( selected++ ))` evaluates to the old value — when `selected` is 0, `(( 0 ))` returns exit code 1, and `set -e` kills the script. Same trap with `(( selected-- ))` when result is 0. Always use `selected=$(( selected + 1 ))` form inside the picker loop.
+
+`read -t 0.1` (fractional timeout) is bash 4+ only. macOS ships bash 3.2. Use integer `-t 1` for the escape-sequence reads after detecting `\x1b`. `-t 0` (non-blocking) is also unreliable — arrow key bytes aren't always in the buffer atomically.
+
 ## Interactive list picker — design note
 
 `cmd_list` uses an arrow-key picker (raw terminal via `stty -echo -icanon`). This was a deliberate UX choice — low risk for Ghostty users (consistent terminal, bounded list size). If it causes issues in practice, revert `cmd_list` to the plain loop (print names, mark active with `*`) and update the README/help descriptions accordingly. The rest of the codebase is unaffected.

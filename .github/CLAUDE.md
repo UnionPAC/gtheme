@@ -1,5 +1,15 @@
 # GitHub Actions & Templates Notes
 
+## Repo settings required
+
+**Settings → Actions → General → Workflow permissions** — "Allow GitHub Actions to create and approve pull requests" must be checked. Without it, `gh pr create` fails with a GraphQL permissions error.
+
+## Known bugs fixed — don't reintroduce
+
+- **`gh pr create --label`** — silently fails if label permissions are restricted. Removed `--label` flag; the issue already carries the label.
+- **`git push origin branch`** — fails if branch already exists with no PR (e.g. first run created branch but PR creation failed). Use `--force` to handle re-runs and edits.
+- **`grep -v ... > tmp && mv tmp file`** — if `grep -v` produces no output (all lines matched), it exits 1, `&&` skips `mv`, and `set -e` can abort. Use `|| true` after `grep -v`, then unconditional `mv`.
+
 ## Submission pipeline overview
 
 1. User runs `gtheme submit` → browser opens issue form
